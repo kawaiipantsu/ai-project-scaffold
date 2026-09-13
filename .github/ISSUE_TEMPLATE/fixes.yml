@@ -1,0 +1,29 @@
+name: fixes
+description: Report a defect in the scaffold, documentation, or maintenance tools.
+title: "fix: "
+labels: [fixes]
+body:
+  - type: markdown
+    attributes:
+      value: "Use synthetic examples. Do not include secrets, personal data, or private logs."
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Which release or commit is affected?
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and reproduction
+      description: Include relevant paths, steps, expected behavior, and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Verification
+      description: How can we verify the fix?
+    validations:
+      required: true
