@@ -45,6 +45,18 @@ class ScaffoldTests(unittest.TestCase):
             self.assertTrue((extracted / 'ai-scaffold').is_dir())
             self.assertEqual(list((extracted / 'ai-scaffold').iterdir()), [])
 
+    def test_payload_is_not_subject_to_maintenance_lint(self):
+        self.clear_scaffold()
+        directory = self.root / 'ai-scaffold'
+        directory.mkdir()
+        (directory / 'notes.md').write_text('Free-form owner notes [draft](future.md)')
+        (directory / 'asset.bin').write_bytes(bytes([0, 128, 255]))
+        subprocess.run(['git', '-C', str(self.root), 'add', 'ai-scaffold'], check=True)
+        self.assertEqual(validate(self.root, self.contract), [])
+        archive = package(self.root, Path(self.temp.name) / 'owner-dist')
+        with zipfile.ZipFile(archive) as bundle:
+            self.assertEqual(bundle.read('ai-scaffold/asset.bin'), bytes([0, 128, 255]))
+
     def test_current_contract(self):
         self.assertEqual(validate(self.root, self.contract), [])
 

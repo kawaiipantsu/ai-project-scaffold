@@ -31,7 +31,7 @@ jobs:
       - name: Lint YAML
         run: python3 -m yamllint --strict .github
       - name: Lint Markdown
-        run: npx --yes --loglevel=error markdownlint-cli@0.45.0 '**/*.md' --ignore node_modules
+        run: npx --yes --loglevel=error markdownlint-cli@0.45.0 '**/*.md' --ignore node_modules --ignore ai-scaffold
       - name: Validate current contract
         run: python3 contrib/validate.py
       - name: Preserve base branch contract

@@ -22,6 +22,8 @@ def package(root, output):
         directory.external_attr = (0o40755 << 16) | 0x10
         bundle.writestr(directory, b'')
         for path in files:
+            if (root / path).is_symlink() or not (root / path).is_file():
+                raise ValueError('Payload archive entries must be regular files')
             info = zipfile.ZipInfo(path.as_posix(), date_time=(2020, 1, 1, 0, 0, 0))
             info.create_system = 3
             info.external_attr = 0o100644 << 16

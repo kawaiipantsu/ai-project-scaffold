@@ -4,13 +4,18 @@
 The checker validates presence, non-empty files, marker text, local Markdown links,
 UTF-8 text, safe file types, and common secret or personal-email patterns.
 It checks required content rather than guessing whether a change is appropriate.
-The eight tests deliberately remove a required repository file, remove a rule,
+The nine tests deliberately remove a required repository file, remove a rule,
 inject a sensitive value, and inspect both empty and populated release archives.
 Synthetic scaffold fixtures exist only in temporary test directories.
 
 The default contract protects repository maintenance files and root working rules.
 The payload is owner-defined: add its required files and exact rule sentences to
 the contract once the owner supplies them. No payload files are required by default.
+Until then, Markdown lint, local link checks, text-only restrictions, and local
+sensitive-pattern checks exclude `ai-scaffold/`. Arbitrary regular payload files
+can be added without imposing a layout or writing style. Packaging still rejects
+symlinks to avoid including files outside the payload. GitHub secret scanning and
+push protection continue to apply across the repository.
 
 CI runs Markdown, YAML, and Python linters, contract checks, negative tests,
 and a ZIP smoke test. A PR also runs the validator and contract from its base commit

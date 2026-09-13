@@ -43,7 +43,8 @@ always include an explicit `ai-scaffold/` directory entry, even when it is empty
 
 Populate `ai-scaffold/` with the files, directories, instructions, and prompts you want.
 Commit those files on `develop` and open a PR to `main`. Only tracked payload files
-are packaged. Add any files and exact rule sentences that must remain present to
+are packaged. Payload lint and content requirements are deferred until your files
+are ready; current checks cover repository maintenance. Add any files and exact rule sentences that must remain present to
 `contrib/requirements.json`; there are no preset requirements for your payload.
 
 ## Maintainer workflow

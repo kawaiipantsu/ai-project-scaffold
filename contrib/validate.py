@@ -40,6 +40,9 @@ def validate(root, contract):
             if marker not in content:
                 errors.append(f'{name}: required rule missing (index {markers.index(marker)})')
     for relative in tracked_files(root):
+        # Payload policy is deferred until the owner supplies the scaffold.
+        if relative.parts[0] == 'ai-scaffold':
+            continue
         path = root / relative
         if not path.exists():
             errors.append(f'{relative}: tracked file missing')
