@@ -29,7 +29,7 @@ jobs:
       - name: Lint Python
         run: python3 -m ruff check contrib
       - name: Lint YAML
-        run: python3 -m yamllint --strict .github ai-scaffold/.github
+        run: python3 -m yamllint --strict .github
       - name: Lint Markdown
         run: npx --yes --loglevel=error markdownlint-cli@0.45.0 '**/*.md' --ignore node_modules
       - name: Validate current contract
