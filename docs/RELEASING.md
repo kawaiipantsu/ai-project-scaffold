@@ -2,6 +2,7 @@
 
 Releases are version tags on commits already reachable from `main`.
 Use semantic versions such as `v1.0.0`. Never move a published tag.
+An active ruleset prevents updating or deleting version tags.
 
 ```sh
 git fetch origin main

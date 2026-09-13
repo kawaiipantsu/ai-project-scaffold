@@ -6,7 +6,9 @@
 Commit focused changes to `develop`, push, and open a PR targeting `main`.
 Use a merge commit to preserve individual commits. Squash and rebase merging are disabled.
 After merging, fast-forward local `main`, then merge `origin/main` into `develop` and push it.
-Do not force-push shared history.
+Do not force-push shared history. Rules prevent creating other branches in this
+repository and protect develop from deletion and force pushes. Make dependency
+updates on develop as focused commits; external contributors can use forks.
 
 ```sh
 git switch develop
