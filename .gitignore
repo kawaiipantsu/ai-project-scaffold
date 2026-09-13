@@ -1,0 +1,12 @@
+# Local secrets and generated artifacts
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+.scaffold-check/

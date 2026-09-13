@@ -1,0 +1,29 @@
+name: scaffold changes
+description: Propose a change to scaffold structure, AI rules, or technology guidance.
+title: "scaffold: "
+labels: [scaffold changes]
+body:
+  - type: markdown
+    attributes:
+      value: "Preserve required rules. Use placeholders instead of sensitive information."
+  - type: textarea
+    id: need
+    attributes:
+      label: Problem and proposed change
+      description: Explain the need and which files, rules, or directories would change.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and required rules
+      description: Explain adoption impact and how required content will remain present.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List observable outcomes and validation, documentation, and wiki updates.
+    validations:
+      required: true

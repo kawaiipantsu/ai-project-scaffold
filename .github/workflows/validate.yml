@@ -1,0 +1,54 @@
+name: Validate
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    name: Validate scaffold
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
+        with:
+          node-version: '22'
+      - name: Install lint tools
+        run: python3 -m pip install -r contrib/requirements-dev.txt
+      - name: Lint Python
+        run: python3 -m ruff check contrib
+      - name: Lint YAML
+        run: python3 -m yamllint --strict .github ai-scaffold/.github
+      - name: Lint Markdown
+        run: npx --yes --loglevel=error markdownlint-cli@0.45.0 '**/*.md' --ignore node_modules
+      - name: Validate current contract
+        run: python3 contrib/validate.py
+      - name: Preserve base branch contract
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          baseline_dir="$(mktemp -d)"
+          if git cat-file -e "$BASE_SHA:contrib/requirements.json"; then
+            git show "$BASE_SHA:contrib/requirements.json" > "$baseline_dir/requirements.json"
+            git show "$BASE_SHA:contrib/validate.py" > "$baseline_dir/validate.py"
+            python3 "$baseline_dir/validate.py" --root "$GITHUB_WORKSPACE" --contract "$baseline_dir/requirements.json"
+          elif [ "$BASE_SHA" != 'c6a44e3c486195d83dd5417c726a558688432bc5' ]; then
+            echo 'Base contract unexpectedly missing'
+            exit 1
+          fi
+      - name: Test validation failures and release contents
+        run: python3 -m unittest discover -s contrib/tests -v
+      - name: Build release ZIP smoke test
+        run: python3 contrib/package.py
