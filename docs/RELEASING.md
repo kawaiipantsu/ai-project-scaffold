@@ -12,7 +12,8 @@ git push origin v1.0.0
 
 The release workflow verifies main ancestry, rechecks the contract and tests,
 builds `scaffold.zip` and `scaffold.zip.sha256`, and publishes a GitHub release.
-`scaffold.zip` contains exactly the tracked `ai-scaffold/` tree, including dotfiles.
+`scaffold.zip` contains an explicit `ai-scaffold/` directory entry plus exactly the
+tracked payload files, including dotfiles. An empty payload produces an empty folder.
 Timestamps and permissions are normalized for reproducible archives.
 GitHub's automatic source archives are not the scaffold download.
 
@@ -31,7 +32,10 @@ rm scaffold.zip scaffold.zip.sha256
 local filename argument. `unzip -n` preserves existing files. Inspect and deliberately
 merge updates if an `ai-scaffold/` folder already exists.
 
-After extraction, read `ai-scaffold/README.md`. Most AI tools discover root-level
-instruction files, so consciously merge `ai-scaffold/AGENTS.md` into a project-root
-`AGENTS.md`, then adapt its paths and project-specific decisions. Existing project
-instructions take precedence until you explicitly reconcile them.
+The payload is intentionally empty until the owner populates it. Git does not track
+empty directories; use `mkdir -p ai-scaffold` after cloning when needed. ZIP extraction
+recreates the folder even when no files are tracked. Extracting an empty ZIP over an
+existing folder does not delete its old contents; use a fresh directory for a clean start.
+
+When adding your own AI instructions, document how a consuming project should adopt
+them. This repository does not generate those instructions or choose their layout.

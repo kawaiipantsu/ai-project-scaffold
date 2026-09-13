@@ -2,7 +2,8 @@
 
 ## Purpose
 
-Maintain a reusable, technology-neutral scaffold in `ai-scaffold/`.
+Maintain repository tooling for the owner-populated `ai-scaffold/` payload.
+Do not generate scaffold content; the owner supplies the files and instructions.
 Read `docs/CONTRIBUTING.md` and `docs/VALIDATION.md` before changing it.
 
 ## Required rules

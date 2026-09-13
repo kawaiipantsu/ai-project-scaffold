@@ -3,9 +3,9 @@
 [![Validate](https://github.com/kawaiipantsu/ai-project-scaffold/actions/workflows/validate.yml/badge.svg)](https://github.com/kawaiipantsu/ai-project-scaffold/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/kawaiipantsu/ai-project-scaffold)](https://github.com/kawaiipantsu/ai-project-scaffold/releases/latest)
 
-A reusable starting point for AI-assisted projects: clear working rules, project
-requirements, technology and architecture decisions, prompts, and directory structure.
-It is technology-neutral so each project can document its real stack.
+A repository for your own project scaffold, AI instructions, and architecture notes.
+You define the contents of `ai-scaffold/`; this repository provides validation,
+PR-only maintenance, documentation, and ZIP releases.
 
 **[Website](https://thugs.red) · [Wiki](https://github.com/kawaiipantsu/ai-project-scaffold/wiki) · [Download ZIP](https://github.com/kawaiipantsu/ai-project-scaffold/releases/latest/download/scaffold.zip)**
 
@@ -18,10 +18,14 @@ curl --fail --location --output scaffold.zip \\
 unzip -n scaffold.zip && rm scaffold.zip
 ```
 
-The ZIP extracts into `ai-scaffold/` and includes hidden files. Read
-[the scaffold guide](ai-scaffold/README.md), merge its instructions into your project
-root, and fill in the project decisions. Existing files are preserved by `unzip -n`.
+The ZIP extracts into `ai-scaffold/`, including any tracked hidden files you add.
+The payload is intentionally empty until you populate it. Existing files are preserved
+by `unzip -n`; extracting an empty ZIP will not remove files from an older installation.
 For checksum verification and upgrades, see [releases](docs/RELEASING.md).
+
+Git does not track empty directories. After cloning, run `mkdir -p ai-scaffold` if
+needed. No placeholder or generated instructions are placed inside it. Release ZIPs
+always include an explicit `ai-scaffold/` directory entry, even when it is empty.
 
 ## Repository layout
 
@@ -35,17 +39,12 @@ For checksum verification and upgrades, see [releases](docs/RELEASING.md).
 └── README.md
 ```
 
-## What the scaffold provides
+## Add your scaffold
 
-| Area | Included guidance |
-| --- | --- |
-| AI behavior | Explicit working rules, evidence, privacy, focused changes |
-| Requirements | Scope, acceptance criteria, constraints, open questions |
-| Architecture | Boundaries, data flow, security, reliability, decision records |
-| Technology | Stack selection, dependencies, environments |
-| Development | Setup, lint, tests, build, Git workflow |
-| Prompts | Planning, implementation, review |
-| Structure | Source, tests, maintenance, docs, GitHub notes |
+Populate `ai-scaffold/` with the files, directories, instructions, and prompts you want.
+Commit those files on `develop` and open a PR to `main`. Only tracked payload files
+are packaged. Add any files and exact rule sentences that must remain present to
+`contrib/requirements.json`; there are no preset requirements for your payload.
 
 ## Maintainer workflow
 
