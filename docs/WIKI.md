@@ -8,7 +8,7 @@ git clone https://github.com/kawaiipantsu/ai-project-scaffold.wiki.git
 cd ai-project-scaffold.wiki
 # Edit pages and graphics; review changes for sensitive information.
 git add Home.md
- git commit -m 'docs: explain the updated workflow'
+git commit -m 'docs: explain the updated workflow'
 git push
 ```
 

@@ -9,7 +9,7 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 PATTERNS = {
-    'email address': re.compile(r'[A-Za-z0-9.!#$%&\x27*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+'),
+    'email address': re.compile(r'[A-Za-z0-9.!#$%&\x27*+/=?^_`{|}~-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}\b'),
     'private key': re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),
     'provider token': re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[A-Z0-9]{16}|sk-[A-Za-z0-9]{32,})'),
     'credential assignment': re.compile(r'''(?im)^\s*(?:password|secret|api[_-]?key|access[_-]?token)\s*[:=]\s*["']?(?!TBD\b|PLACEHOLDER\b|\$|<)[A-Za-z0-9/+_=.-]{8,}'''),

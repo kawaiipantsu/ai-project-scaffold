@@ -28,12 +28,14 @@ Never include private logs, credentials, personal addresses, or client informati
 Use placeholders in examples and preserve the configured global Git identity.
 
 ```sh
+python3 -m venv .venv
+. .venv/bin/activate
 python3 -m pip install -r contrib/requirements-dev.txt
 python3 contrib/validate.py
 python3 -m unittest discover -s contrib/tests
 python3 -m ruff check contrib
 python3 -m yamllint .github ai-scaffold/.github
-npx --yes markdownlint-cli@0.45.0 '**/*.md' --ignore node_modules
+npx --yes markdownlint-cli@0.45.0 '**/*.md' --ignore node_modules --ignore .venv
 python3 contrib/package.py
 ```
 
