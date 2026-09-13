@@ -1,10 +1,12 @@
 # Repository working rules
 
 ## Purpose
+
 Maintain a reusable, technology-neutral scaffold in `ai-scaffold/`.
 Read `docs/CONTRIBUTING.md` and `docs/VALIDATION.md` before changing it.
 
 ## Required rules
+
 - Never commit secrets, passwords, tokens, personal email addresses, or sensitive data.
 - Use the existing global Git identity; never embed identity details in project files.
 - Work on `develop` and enter `main` only through pull requests.

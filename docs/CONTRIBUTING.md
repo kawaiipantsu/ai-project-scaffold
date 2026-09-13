@@ -1,6 +1,7 @@
 # Contributing
 
 ## Two branches
+
 `develop` is the shared integration branch. `main` is the release branch.
 Commit focused changes to `develop`, push, and open a PR targeting `main`.
 Use a merge commit to preserve individual commits. Squash and rebase merging are disabled.
@@ -22,6 +23,7 @@ edit repository settings; GitHub settings cannot prevent that administrative abi
 No approval count is imposed so the repository owner can merge their own checked PR.
 
 ## Before opening a PR
+
 Use the fixes or scaffold changes issue form. Describe the reason, changed behavior,
 and validation. Keep AI rules explicit and technology decisions evidence-based.
 Never include private logs, credentials, personal addresses, or client information.
