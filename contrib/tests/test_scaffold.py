@@ -28,15 +28,44 @@ class ScaffoldTests(unittest.TestCase):
         subprocess.run(['git', '-C', str(self.root), 'add', '.'], check=True)
         self.contract = json.loads((self.root / 'contrib/requirements.json').read_text())
 
+    def clear_scaffold(self):
+        subprocess.run(['git', '-C', str(self.root), 'rm', '-r', '-f',
+                        '--ignore-unmatch', 'ai-scaffold'], check=True, capture_output=True)
+        shutil.rmtree(self.root / 'ai-scaffold', ignore_errors=True)
+
+    def test_empty_scaffold_archive(self):
+        self.clear_scaffold()
+        output = Path(self.temp.name) / 'empty-dist'
+        archive = package(self.root, output)
+        with zipfile.ZipFile(archive) as bundle:
+            self.assertEqual(bundle.namelist(), ['ai-scaffold/'])
+            self.assertTrue(bundle.getinfo('ai-scaffold/').is_dir())
+            extracted = Path(self.temp.name) / 'empty-extract'
+            bundle.extractall(extracted)
+            self.assertTrue((extracted / 'ai-scaffold').is_dir())
+            self.assertEqual(list((extracted / 'ai-scaffold').iterdir()), [])
+
+    def test_payload_is_not_subject_to_maintenance_lint(self):
+        self.clear_scaffold()
+        directory = self.root / 'ai-scaffold'
+        directory.mkdir()
+        (directory / 'notes.md').write_text('Free-form owner notes [draft](future.md)')
+        (directory / 'asset.bin').write_bytes(bytes([0, 128, 255]))
+        subprocess.run(['git', '-C', str(self.root), 'add', 'ai-scaffold'], check=True)
+        self.assertEqual(validate(self.root, self.contract), [])
+        archive = package(self.root, Path(self.temp.name) / 'owner-dist')
+        with zipfile.ZipFile(archive) as bundle:
+            self.assertEqual(bundle.read('ai-scaffold/asset.bin'), bytes([0, 128, 255]))
+
     def test_current_contract(self):
         self.assertEqual(validate(self.root, self.contract), [])
 
     def test_missing_key_file(self):
-        (self.root / 'ai-scaffold/AGENTS.md').unlink()
+        (self.root / 'AGENTS.md').unlink()
         self.assertTrue(validate(self.root, self.contract))
 
     def test_removed_rule_even_if_new_contract_is_weakened(self):
-        key = 'ai-scaffold/AGENTS.md'
+        key = 'AGENTS.md'
         marker = self.contract['required_files'][key][0]
         path = self.root / key
         path.write_text(path.read_text().replace(marker, ''))
@@ -48,7 +77,7 @@ class ScaffoldTests(unittest.TestCase):
     def test_sensitive_values_are_rejected_without_echo(self):
         for value in ['person' + '@' + 'example.invalid', 'ghp_' + 'A' * 36,
                       'password' + '=' + 'synthetic-value-123']:
-            path = self.root / 'ai-scaffold/docs/PROJECT.md'
+            path = self.root / 'docs/SECURITY.md'
             path.write_text(path.read_text() + '\n' + value)
             errors = validate(self.root, self.contract)
             self.assertTrue(any('possible' in e for e in errors))
@@ -60,19 +89,26 @@ class ScaffoldTests(unittest.TestCase):
         self.assertTrue(any('link' in e for e in validate(self.root, self.contract)))
 
     def test_symlink_rejected(self):
-        path = self.root / 'ai-scaffold/src/README.md'
+        path = self.root / 'docs/SECURITY.md'
         path.unlink()
-        path.symlink_to('../README.md')
+        path.symlink_to('VALIDATION.md')
         self.assertTrue(validate(self.root, self.contract))
 
     def test_archive_exact_tree_hidden_files_and_reproducibility(self):
+        self.clear_scaffold()
+        for name in ['ai-scaffold/owner-notes.md', 'ai-scaffold/.gitignore',
+                     'ai-scaffold/.github/README.md']:
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('# Synthetic packaging fixture\n')
+        subprocess.run(['git', '-C', str(self.root), 'add', 'ai-scaffold'], check=True)
         (self.root / 'ai-scaffold/untracked.txt').write_text('Must not ship')
         output = Path(self.temp.name) / 'dist'
         archive = package(self.root, output)
         original = archive.read_bytes()
         with zipfile.ZipFile(archive) as bundle:
             expected = {p.as_posix() for p in tracked_files(self.root) if p.parts[0] == 'ai-scaffold'}
-            self.assertEqual(set(bundle.namelist()), expected)
+            self.assertEqual(set(bundle.namelist()), expected | {'ai-scaffold/'})
             self.assertIn('ai-scaffold/.gitignore', bundle.namelist())
             self.assertIn('ai-scaffold/.github/README.md', bundle.namelist())
             self.assertIsNone(bundle.testzip())
