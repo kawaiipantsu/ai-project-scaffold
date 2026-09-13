@@ -4,9 +4,11 @@
 The checker validates presence, non-empty files, marker text, local Markdown links,
 UTF-8 text, safe file types, and common secret or personal-email patterns.
 It checks required content rather than guessing whether a change is appropriate.
-The nine tests deliberately remove a required repository file, remove a rule,
+The scaffold tests deliberately remove a required repository file, remove a rule,
 inject a sensitive value, and inspect both empty and populated release archives.
-Synthetic scaffold fixtures exist only in temporary test directories.
+Synthetic scaffold fixtures exist only in temporary test directories. Git-helper
+tests use disposable local repositories and a mock GitHub CLI to verify scoped
+commits, pushing, PR summaries and updates, conflict recovery, and manual merging.
 
 The default contract protects repository maintenance files and root working rules.
 The payload is owner-defined: add its required files and exact rule sentences to
