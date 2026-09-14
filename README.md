@@ -47,6 +47,16 @@ are packaged. Payload lint and content requirements are deferred until your file
 are ready; current checks cover repository maintenance. Add any files and exact rule sentences that must remain present to
 `contrib/requirements.json`; there are no preset requirements for your payload.
 
+## Scaffold shortcuts
+
+```sh
+contrib/commit-scaffold "describe your change"
+contrib/pr-scaffold
+```
+
+Run on `develop`. The helpers commit and push the payload, then prepare a consistent
+PR overview for manual review and merging on GitHub. See [usage](contrib/README.md).
+
 ## Maintainer workflow
 
 Work on `develop` and open a PR into protected `main`. Keep individual, focused

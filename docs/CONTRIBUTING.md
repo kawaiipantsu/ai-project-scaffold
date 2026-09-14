@@ -24,6 +24,19 @@ The ruleset has no bypass actors, including administrators. Administrators can s
 edit repository settings; GitHub settings cannot prevent that administrative ability.
 No approval count is imposed so the repository owner can merge their own checked PR.
 
+## Scaffold shortcuts
+
+```sh
+git switch develop
+contrib/commit-scaffold "describe your scaffold change"
+contrib/pr-scaffold
+```
+
+The first helper stages the payload, commits with `New scaffold change: <note>`,
+and pushes develop. The second synchronizes branches and creates or updates a PR
+with commit notes, changed files, and a reviewer checklist. It leaves the merge for
+you to perform manually on GitHub. See [helper details](../contrib/README.md).
+
 ## Before opening a PR
 
 Use the fixes or scaffold changes issue form. Describe the reason, changed behavior,
