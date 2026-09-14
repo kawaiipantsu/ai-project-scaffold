@@ -180,6 +180,7 @@ docs/
 ├── CREDS_DB.md
 ├── CREDS_PREDEFINED.md
 ├── GIT_RULES.md
+├── PENTEST.md
 ├── PROJECT.md
 ├── PROJECT_PROGRESS.md
 ├── PROJECT_RULES.md
@@ -216,6 +217,10 @@ Real secrets must not be stored directly in documentation.
 ### `docs/GIT_RULES.md`
 
 Defines Git-related conventions and repository workflow requirements.
+
+### `docs/PENTEST.md`
+
+Describes simple security testing criteria that may be enforced/tested for.
 
 ### `docs/PROJECT.md`
 
