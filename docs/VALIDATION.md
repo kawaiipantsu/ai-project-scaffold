@@ -9,6 +9,8 @@ inject a sensitive value, and inspect both empty and populated release archives.
 Synthetic scaffold fixtures exist only in temporary test directories. Git-helper
 tests use disposable local repositories and a mock GitHub CLI to verify scoped
 commits, pushing, PR summaries and updates, conflict recovery, and manual merging.
+Release-helper tests cover version bumps, main-only tags, repeat invocations,
+rejected pushes, and failed publication workflows.
 
 The default contract protects repository maintenance files and root working rules.
 The payload is owner-defined: add its required files and exact rule sentences to

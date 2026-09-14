@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+"""Bump a version tag on origin/main and wait for GitHub's ZIP release."""
+from publish_release import main
+
+if __name__ == '__main__':
+    main()
