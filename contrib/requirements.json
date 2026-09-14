@@ -23,6 +23,8 @@
     "contrib/commit-scaffold": [],
     "contrib/pr-scaffold": [],
     "contrib/scaffold_git.py": [],
-    "contrib/tests/test_git_helpers.py": []
+    "contrib/tests/test_git_helpers.py": [],
+    "contrib/publish-release": [],
+    "contrib/publish_release.py": []
   }
 }

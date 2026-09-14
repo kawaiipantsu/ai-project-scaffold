@@ -25,7 +25,8 @@ class GitHelperTests(unittest.TestCase):
         self.git('config', 'user.email', 'fixture' + '@' + 'example.invalid')
         (self.repo / '.gitignore').write_text('__pycache__/\n')
         (self.repo / 'contrib').mkdir()
-        for name in ('commit-scaffold', 'pr-scaffold', 'scaffold_git.py'):
+        for name in ('commit-scaffold', 'pr-scaffold', 'scaffold_git.py',
+                     'publish-release', 'publish_release.py'):
             shutil.copy2(ROOT / 'contrib' / name, self.repo / 'contrib' / name)
         self.git('add', '.')
         self.git('commit', '-qm', 'Initial fixture')
@@ -55,6 +56,14 @@ elif args[:2] == ['pr', 'create']:
 elif args[:3] == ['api', '--method', 'PATCH']:
     update = json.loads(Path(args[args.index('--input') + 1]).read_text())
     Path(os.environ['SCAFFOLD_TEST_LOG'] + '.body').write_text(update['body'])
+elif args[:2] == ['run', 'list']:
+    print('[{"databaseId": 123}]')
+elif args[:2] == ['run', 'watch']:
+    sys.exit(int(os.environ.get('SCAFFOLD_TEST_RUN_FAILURE', '0')))
+elif args[:2] == ['release', 'view']:
+    print(json.dumps({'url': 'https://github.com/example/scaffold/releases/tag/' + args[2],
+                      'isDraft': False,
+                      'assets': [{'name': 'scaffold.zip'}, {'name': 'scaffold.zip.sha256'}]}))
 elif args != ['api', 'user', '--silent']:
     sys.exit(2)
 ''')
@@ -170,3 +179,62 @@ elif args != ['api', 'user', '--silent']:
         self.assertNotEqual(self.git('rev-parse', 'HEAD').stdout, before)
         self.assertEqual(self.git('rev-parse', 'origin/develop').stdout, before)
         self.assertIn('local commits remain', result.stderr)
+
+    def test_release_defaults_to_patch_and_reuses_existing_release(self):
+        target = self.git('rev-parse', 'origin/main').stdout.strip()
+        # Develop-only commits must never become the release target.
+        self.payload()
+        self.assertEqual(self.helper('commit-scaffold', 'unmerged').returncode, 0)
+        result = self.helper('publish-release')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.git('rev-parse', 'v0.0.1^{commit}').stdout.strip(), target)
+        self.assertIn('refs/tags/v0.0.1', self.git('ls-remote', '--tags', 'origin').stdout)
+        self.assertEqual(self.git('branch', '--show-current').stdout.strip(), 'develop')
+        result = self.helper('publish-release')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.git('tag').stdout.strip(), 'v0.0.1')
+        calls = [json.loads(line) for line in self.log.read_text().splitlines()]
+        self.assertIn(['run', 'watch', '123', '--exit-status'], calls)
+
+    def test_release_minor_major_and_numeric_version_order(self):
+        for bump, expected in [('minor', 'v1.11.0'), ('major', 'v2.0.0')]:
+            with self.subTest(bump=bump):
+                for tag in ('v1.9.0', 'v1.10.3'):
+                    self.git('tag', tag, 'origin/main')
+                    self.git('push', '-q', 'origin', tag)
+                self.git('commit', '--allow-empty', '-qm', 'Merged change')
+                self.git('push', '-q', 'origin', 'HEAD:main')
+                result = self.helper('publish-release', bump)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.git('rev-parse', expected + '^{commit}').stdout,
+                                 self.git('rev-parse', 'origin/main').stdout)
+                for tag in ('v1.9.0', 'v1.10.3', expected):
+                    self.git('push', '-q', 'origin', '--delete', tag)
+                    self.git('tag', '-d', tag)
+
+    def test_release_refuses_dirty_tree_wrong_branch_and_invalid_bump(self):
+        self.assertNotEqual(self.helper('publish-release', 'bogus').returncode, 0)
+        self.git('switch', 'main')
+        self.assertNotEqual(self.helper('publish-release').returncode, 0)
+        self.git('switch', 'develop')
+        self.payload()
+        self.assertNotEqual(self.helper('publish-release').returncode, 0)
+        self.assertEqual(self.git('tag').stdout, '')
+
+    def test_release_push_failure_preserves_tag_and_blocks_duplicate(self):
+        hook = self.remote / 'hooks/pre-receive'
+        hook.write_text('#!/bin/sh\nexit 1\n')
+        hook.chmod(0o755)
+        result = self.helper('publish-release')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.git('tag').stdout.strip(), 'v0.0.1')
+        self.assertEqual(self.git('ls-remote', '--tags', 'origin').stdout, '')
+        result = self.helper('publish-release')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Local tag v0.0.1 already exists', result.stderr)
+
+    def test_release_reports_workflow_failure_without_new_tag_on_retry(self):
+        self.env['SCAFFOLD_TEST_RUN_FAILURE'] = '1'
+        self.assertNotEqual(self.helper('publish-release').returncode, 0)
+        self.assertNotEqual(self.helper('publish-release').returncode, 0)
+        self.assertEqual(self.git('tag').stdout.strip(), 'v0.0.1')

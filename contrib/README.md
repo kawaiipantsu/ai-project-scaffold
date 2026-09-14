@@ -38,3 +38,12 @@ validation is invented. If main already contains all commits, no PR is created.
 The helper never approves, merges a PR, or enables auto-merge. Review and merge from
 the GitHub page once checks and feedback are resolved. Rerunning it replaces the PR
 title and description, so keep discussion in review comments.
+
+## Release shortcut
+
+After merging on GitHub, run `contrib/publish-release` from a clean `develop`
+checkout to publish the next patch release. Pass `minor` or `major` for a larger
+version bump. Requires an authenticated GitHub CLI and permission to push tags.
+It tags the latest `origin/main`, waits for the release workflow, and prints the
+published release URL. Rerunning on the same main commit checks the existing release.
+See [releases](../docs/RELEASING.md) for examples and failure recovery.
