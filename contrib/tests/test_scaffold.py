@@ -38,12 +38,11 @@ class ScaffoldTests(unittest.TestCase):
         output = Path(self.temp.name) / 'empty-dist'
         archive = package(self.root, output)
         with zipfile.ZipFile(archive) as bundle:
-            self.assertEqual(bundle.namelist(), ['ai-scaffold/'])
-            self.assertTrue(bundle.getinfo('ai-scaffold/').is_dir())
+            self.assertEqual(bundle.namelist(), [])
             extracted = Path(self.temp.name) / 'empty-extract'
+            extracted.mkdir()
             bundle.extractall(extracted)
-            self.assertTrue((extracted / 'ai-scaffold').is_dir())
-            self.assertEqual(list((extracted / 'ai-scaffold').iterdir()), [])
+            self.assertEqual(list(extracted.iterdir()), [])
 
     def test_payload_is_not_subject_to_maintenance_lint(self):
         self.clear_scaffold()
@@ -55,7 +54,7 @@ class ScaffoldTests(unittest.TestCase):
         self.assertEqual(validate(self.root, self.contract), [])
         archive = package(self.root, Path(self.temp.name) / 'owner-dist')
         with zipfile.ZipFile(archive) as bundle:
-            self.assertEqual(bundle.read('ai-scaffold/asset.bin'), bytes([0, 128, 255]))
+            self.assertEqual(bundle.read('asset.bin'), bytes([0, 128, 255]))
 
     def test_current_contract(self):
         self.assertEqual(validate(self.root, self.contract), [])
@@ -107,15 +106,17 @@ class ScaffoldTests(unittest.TestCase):
         archive = package(self.root, output)
         original = archive.read_bytes()
         with zipfile.ZipFile(archive) as bundle:
-            expected = {p.as_posix() for p in tracked_files(self.root) if p.parts[0] == 'ai-scaffold'}
-            self.assertEqual(set(bundle.namelist()), expected | {'ai-scaffold/'})
-            self.assertIn('ai-scaffold/.gitignore', bundle.namelist())
-            self.assertIn('ai-scaffold/.github/README.md', bundle.namelist())
+            expected = {p.relative_to('ai-scaffold').as_posix() for p in tracked_files(self.root)
+                        if p.parts[0] == 'ai-scaffold'}
+            self.assertEqual(set(bundle.namelist()), expected)
+            self.assertIn('.gitignore', bundle.namelist())
+            self.assertIn('.github/README.md', bundle.namelist())
             self.assertIsNone(bundle.testzip())
             extracted = Path(self.temp.name) / 'extract'
             bundle.extractall(extracted)
             for name in expected:
-                self.assertEqual((extracted / name).read_bytes(), (self.root / name).read_bytes())
+                self.assertEqual((extracted / name).read_bytes(),
+                                  (self.root / 'ai-scaffold' / name).read_bytes())
         self.assertEqual(package(self.root, output).read_bytes(), original)
         checksum = (output / 'scaffold.zip.sha256').read_text().split()[0]
         self.assertEqual(checksum, hashlib.sha256(original).hexdigest())

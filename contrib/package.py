@@ -17,14 +17,11 @@ def package(root, output):
     output.mkdir(parents=True, exist_ok=True)
     archive = output / 'scaffold.zip'
     with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as bundle:
-        directory = zipfile.ZipInfo('ai-scaffold/', date_time=(2020, 1, 1, 0, 0, 0))
-        directory.create_system = 3
-        directory.external_attr = (0o40755 << 16) | 0x10
-        bundle.writestr(directory, b'')
         for path in files:
             if (root / path).is_symlink() or not (root / path).is_file():
                 raise ValueError('Payload archive entries must be regular files')
-            info = zipfile.ZipInfo(path.as_posix(), date_time=(2020, 1, 1, 0, 0, 0))
+            relative = path.relative_to('ai-scaffold')
+            info = zipfile.ZipInfo(relative.as_posix(), date_time=(2020, 1, 1, 0, 0, 0))
             info.create_system = 3
             info.external_attr = 0o100644 << 16
             info.compress_type = zipfile.ZIP_DEFLATED
